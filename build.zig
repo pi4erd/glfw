@@ -31,6 +31,12 @@ pub fn build(b: *std.Build) void {
         "Builds a dynamic library",
     ) orelse false;
 
+    const build_vulkan = b.option(
+        bool,
+        "build_vulkan",
+        "Builds glfw with vulkan support included in definitions",
+    ) orelse false;
+
     const src_dir = b.path("src/");
     const include_dir = b.path("include/");
     const deps_dir = b.path("deps/");
@@ -144,6 +150,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .target = target,
     });
+
+    if (build_vulkan) {
+        c_glfw_header.defineCMacro("GLFW_INCLUDE_VULKAN", "1");
+    }
 
     const glfw = c_glfw_header.addModule("glfw");
 
