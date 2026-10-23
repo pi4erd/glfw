@@ -104,7 +104,6 @@ pub fn build(b: *std.Build) void {
         "wl_init.c",
         "wl_monitor.c",
         "wl_window.c",
-        "xkb_unicode.c",
     };
 
     var wayland_protocol: std.ArrayList(std.Build.LazyPath) = .empty;
@@ -200,13 +199,6 @@ pub fn build(b: *std.Build) void {
                     .root = src_dir,
                 });
                 glfw.addCMacro("_GLFW_WAYLAND", "1");
-
-                for (wayland_protocol.items) |proto_code| {
-                    glfw.addCSourceFile(.{
-                        .file = proto_code,
-                        .language = .c,
-                    });
-                }
             }
 
             if (build_x11) {
