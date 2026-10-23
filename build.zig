@@ -13,18 +13,28 @@ pub fn build(b: *std.Build) void {
             "Compile at your own risk.", .{});
     }
 
-    const build_wayland = b.option(bool, "build_wayland", "Builds wayland support for linux platform")
-        orelse (platform == .linux);
-    const build_x11 = b.option(bool, "build_x11", "Builds x11 support for linux platform")
-        orelse (platform == .linux);
-    const build_dynamic = b.option(bool, "build_dynamic", "Builds a dynamic library") orelse false;
+    const build_wayland = b.option(
+        bool,
+        "build_wayland",
+        "Builds wayland support for linux platform",
+    ) orelse (platform == .linux);
+
+    const build_x11 = b.option(
+        bool,
+        "build_x11",
+        "Builds x11 support for linux platform",
+    ) orelse (platform == .linux);
+
+    const build_dynamic = b.option(
+        bool,
+        "build_dynamic",
+        "Builds a dynamic library",
+    ) orelse false;
 
     const src_dir = b.path("src/");
     const include_dir = b.path("include/");
     const deps_dir = b.path("deps/");
     const wayland_dir = deps_dir.path(b, "wayland/");
-
-    b.addNamedLazyPath("glfw-include", include_dir);
 
     // define files
     const common = .{
@@ -129,13 +139,15 @@ pub fn build(b: *std.Build) void {
         }
     }
 
-    // start building module
-    const glfw = b.addModule("glfw", .{
-        .target = target,
+    const c_glfw_header = b.addTranslateC(.{
+        .root_source_file = include_dir.path(b, "GLFW/glfw3.h"),
         .optimize = optimize,
-        .link_libc = true,
+        .target = target,
     });
 
+    const glfw = c_glfw_header.addModule("glfw");
+
+    // start building module
     if (build_wayland) {
         glfw.addIncludePath(generated_wayland_headers.getDirectory());
     }
